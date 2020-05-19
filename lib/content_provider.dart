@@ -16,12 +16,14 @@ class ContentProviderPlugin {
       throw Exception("Not impleted for ios");
     }
     List<dynamic> data =
-        await _channel.invokeMethod('getContent', Map.from(parameters));
+        await _channel.invokeMethod('getContent', parameters);
     return data.cast<Map<dynamic, dynamic>>();
   }
 
   static Future<void> insertContentValue(String uri, dynamic data) async {
-    var parameters = {'uri': '$uri'};
+    var parameters = Map();
+
+    parameters['uri'] = '$uri';
     if (!_isValidUri(uri) || data == null) {
       throw Exception("invalid data");
     }
@@ -29,18 +31,13 @@ class ContentProviderPlugin {
       throw Exception("Not impleted for ios");
     }
     try {
-      final Map<String, dynamic> contentValues = Map();
-      contentValues.putIfAbsent("contentValues", () => data);
-      await _channel.invokeMethod(
-          'insertContent', [Map.from(parameters), Map.from(contentValues)]);
+      parameters['contentValues'] = data;
+      await _channel.invokeMethod('insertContent', parameters);
     } catch (exception) {}
   }
 
   static Future<void> updateContentValue(String uri, dynamic data,
       {String where, List<String> whereArgs}) async {
-    var parameters = {'uri': '$uri'};
-    var whereParam = {'where': '$where'};
-
     if (!_isValidUri(uri) || data == null) {
       throw Exception("invalid data");
     }
@@ -53,17 +50,18 @@ class ContentProviderPlugin {
     if (Platform.isIOS) {
       throw Exception("Not impleted for ios");
     }
+    var parameters = Map();
+
+    argparametersuments['uri'] = '$uri';
+    if (where != null) {
+      parameters['where'] = '$where';
+    }
+    parameters["contentValues"] = data;
+    if (whereArgs != null) {
+      parameters["whereArgs"] = whereArgs;
+    }
     try {
-      final Map<String, dynamic> contentValues = Map();
-      contentValues.putIfAbsent("contentValues", () => data);
-      final Map<String, dynamic> whereArg = Map();
-      whereArg.putIfAbsent("whereArgs", () => whereArgs);
-      await _channel.invokeMethod('updateContent', [
-        Map.from(parameters),
-        contentValues,
-        Map.from(whereParam),
-        whereArg
-      ]);
+      await _channel.invokeMethod('updateContent', parameters);
     } catch (exception) {}
   }
 
@@ -81,13 +79,20 @@ class ContentProviderPlugin {
     if (Platform.isIOS) {
       throw Exception("Not impleted for ios");
     }
+
+    var parameters = Map();
     try {
-      var parameters = {'uri': '$uri'};
-      var whereParam = {'where': '$where'};
-      final Map<String, dynamic> selectionArg = Map();
-      selectionArg.putIfAbsent("whereArgs", () => selectionArgs);
+      parameters['uri'] ='$uri';
+
+      if(where != null){
+        parameters['where'] = '$where';
+      }
+
+      if(selectionArgs != null){
+        parameters['whereArgs'] = selectionArgs;
+      }
       await _channel.invokeMethod('deleteContent',
-          [Map.from(parameters), Map.from(whereParam), selectionArg]);
+          parameters);
     } catch (exception) {}
   }
 

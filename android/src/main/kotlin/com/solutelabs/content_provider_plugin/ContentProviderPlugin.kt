@@ -6,6 +6,7 @@ import android.content.ContentValues
 import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
@@ -22,6 +23,8 @@ class ContentProviderPlugin() : MethodCallHandler {
     var channel: MethodChannel? = null
     var compositeDisposable = CompositeDisposable()
     private var activityLifecycleCallbacks: ActivityLifecycleCallbacks? = null
+
+
 
     constructor(activity: Activity, channel: MethodChannel) : this() {
         this.activity = activity
@@ -69,6 +72,9 @@ class ContentProviderPlugin() : MethodCallHandler {
     }
 
     override fun onMethodCall(call: MethodCall, result: Result) {
+
+
+        Log.d("TAG",call.method + call.arguments.javaClass);
         when (call.method) {
             "getContent" -> {
                 val map = call.arguments as java.util.HashMap<String, String>
@@ -110,6 +116,7 @@ class ContentProviderPlugin() : MethodCallHandler {
             }
 
             "insertContent" -> {
+                Log.d("TAG",call.arguments.toString() + call.arguments.javaClass);
                 val uri = call.argument<String>("uri")
                 Observable.fromCallable {
                     activity?.contentResolver?.insert(Uri.parse(uri), getContentValues(call, result))
